@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaadin-crud-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vaadin-crud-app
+  template:
+    metadata:
+      labels:
+        app: vaadin-crud-app
+    spec:
+      containers:
+        - name: vaadin-crud-app
+          image: vaadin-crud-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: '1'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaadin-crud-app-balancer
+spec:
+  selector:
+    app: vaadin-crud-app
+  ports:
+    - protocol: TCP
+      port: 8000 # The port to expose to the outside
+      targetPort: 8080 # The port the application is running on in the pods
+  type: LoadBalancer
+  sessionAffinity: ClientIP
